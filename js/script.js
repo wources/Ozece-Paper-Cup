@@ -11,6 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initializeCounters()
   initializeScrollEffects()
   initializeAccessibility()
+  initializeMobileOptimizations()
 })
 
 // Loading Screen
@@ -20,16 +21,17 @@ function initializeLoading() {
   // Ensure loading screen is visible initially
   loadingScreen.style.display = "flex"
 
+  // Hide loading screen when all content is loaded
   window.addEventListener("load", () => {
     setTimeout(() => {
       loadingScreen.style.opacity = "0"
       setTimeout(() => {
         loadingScreen.style.display = "none"
       }, 500)
-    }, 1000)
+    }, 800) // Reduced time for better UX
   })
 
-  // Fallback: Hide loading screen after 3 seconds regardless
+  // Fallback: Hide loading screen after 2.5 seconds regardless
   setTimeout(() => {
     if (loadingScreen.style.display !== "none") {
       loadingScreen.style.opacity = "0"
@@ -37,7 +39,7 @@ function initializeLoading() {
         loadingScreen.style.display = "none"
       }, 500)
     }
-  }, 3000)
+  }, 2500) // Reduced time for better UX
 }
 
 // Navigation
@@ -49,10 +51,22 @@ function initializeNavigation() {
 
   if (!hamburger || !navMenu) return
 
+  // Make hamburger keyboard accessible
+  hamburger.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault()
+      hamburger.click()
+    }
+  })
+
   // Mobile menu toggle
   hamburger.addEventListener("click", () => {
     hamburger.classList.toggle("active")
     navMenu.classList.toggle("active")
+
+    // Update ARIA attributes
+    const expanded = hamburger.classList.contains("active")
+    hamburger.setAttribute("aria-expanded", expanded)
 
     // Prevent body scroll when menu is open
     if (navMenu.classList.contains("active")) {
@@ -68,6 +82,7 @@ function initializeNavigation() {
       hamburger.classList.remove("active")
       navMenu.classList.remove("active")
       document.body.style.overflow = ""
+      hamburger.setAttribute("aria-expanded", "false")
     })
   })
 
@@ -77,6 +92,7 @@ function initializeNavigation() {
       hamburger.classList.remove("active")
       navMenu.classList.remove("active")
       document.body.style.overflow = ""
+      hamburger.setAttribute("aria-expanded", "false")
     }
   })
 
@@ -137,14 +153,40 @@ function initializeCarousel() {
   let isTransitioning = false
   let autoPlayInterval
   let isPaused = false
+  let touchStartX = 0
+  let touchEndX = 0
+
+  // Fix for first slide visibility - ensure it's visible immediately
+  slides[0].style.opacity = "1"
+  slides[0].style.transform = "translateX(0)"
+
+  // Set ARIA attributes for accessibility
+  slides.forEach((slide, index) => {
+    slide.setAttribute("aria-hidden", index !== 0 ? "true" : "false")
+    slide.setAttribute("role", "tabpanel")
+    slide.id = `slide-${index}`
+  })
+
+  indicators.forEach((indicator, index) => {
+    indicator.setAttribute("aria-label", `Slide ${index + 1}`)
+    indicator.setAttribute("aria-controls", `slide-${index}`)
+    indicator.setAttribute("aria-selected", index === 0 ? "true" : "false")
+  })
 
   function showSlide(index) {
     if (isTransitioning) return
     isTransitioning = true
 
     // Remove active class from all slides and indicators
-    slides.forEach((slide) => slide.classList.remove("active", "prev"))
-    indicators.forEach((indicator) => indicator.classList.remove("active"))
+    slides.forEach((slide, i) => {
+      slide.classList.remove("active", "prev")
+      slide.setAttribute("aria-hidden", "true")
+    })
+
+    indicators.forEach((indicator, i) => {
+      indicator.classList.remove("active")
+      indicator.setAttribute("aria-selected", "false")
+    })
 
     // Add prev class to current slide
     if (slides[currentSlide]) {
@@ -156,8 +198,11 @@ function initializeCarousel() {
 
     // Add active class to new slide and indicator
     slides[currentSlide].classList.add("active")
+    slides[currentSlide].setAttribute("aria-hidden", "false")
+
     if (indicators[currentSlide]) {
       indicators[currentSlide].classList.add("active")
+      indicators[currentSlide].setAttribute("aria-selected", "true")
     }
 
     // Reset transition flag
@@ -179,11 +224,14 @@ function initializeCarousel() {
 
   function startAutoPlay() {
     if (isPaused) return
+    stopAutoPlay() // Clear any existing interval first
     autoPlayInterval = setInterval(nextSlide, 5000)
   }
 
   function stopAutoPlay() {
-    clearInterval(autoPlayInterval)
+    if (autoPlayInterval) {
+      clearInterval(autoPlayInterval)
+    }
   }
 
   function pauseAutoPlay() {
@@ -219,51 +267,56 @@ function initializeCarousel() {
       pauseAutoPlay()
       setTimeout(resumeAutoPlay, 10000)
     })
+
+    // Keyboard accessibility
+    indicator.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault()
+        indicator.click()
+      }
+    })
   })
 
-  // Pause auto-play on hover
+  // Touch/swipe support for mobile
   const carouselContainer = document.querySelector(".hero-carousel")
+
   if (carouselContainer) {
+    // Improved touch handling
+    carouselContainer.addEventListener("touchstart", handleTouchStart, { passive: true })
+    carouselContainer.addEventListener("touchend", handleTouchEnd, { passive: true })
+    carouselContainer.addEventListener("touchcancel", handleTouchEnd, { passive: true })
+
+    // Mouse events for desktop testing of swipe
+    carouselContainer.addEventListener("mousedown", (e) => {
+      touchStartX = e.clientX
+    })
+
+    carouselContainer.addEventListener("mouseup", (e) => {
+      touchEndX = e.clientX
+      handleSwipe()
+    })
+
+    // Pause auto-play on hover
     carouselContainer.addEventListener("mouseenter", stopAutoPlay)
     carouselContainer.addEventListener("mouseleave", () => {
       if (!isPaused) startAutoPlay()
     })
   }
 
-  // Touch/swipe support for mobile
-  let startX = 0
-  let endX = 0
-  let startY = 0
-  let endY = 0
+  function handleTouchStart(e) {
+    touchStartX = e.touches[0].clientX
+  }
 
-  if (carouselContainer) {
-    carouselContainer.addEventListener(
-      "touchstart",
-      (e) => {
-        startX = e.touches[0].clientX
-        startY = e.touches[0].clientY
-      },
-      { passive: true },
-    )
-
-    carouselContainer.addEventListener(
-      "touchend",
-      (e) => {
-        endX = e.changedTouches[0].clientX
-        endY = e.changedTouches[0].clientY
-        handleSwipe()
-      },
-      { passive: true },
-    )
+  function handleTouchEnd(e) {
+    touchEndX = e.changedTouches ? e.changedTouches[0].clientX : 0
+    handleSwipe()
   }
 
   function handleSwipe() {
     const swipeThreshold = 50
-    const diffX = startX - endX
-    const diffY = startY - endY
+    const diffX = touchStartX - touchEndX
 
-    // Only handle horizontal swipes
-    if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > swipeThreshold) {
+    if (Math.abs(diffX) > swipeThreshold) {
       if (diffX > 0) {
         nextSlide()
       } else {
@@ -276,6 +329,12 @@ function initializeCarousel() {
 
   // Keyboard navigation
   document.addEventListener("keydown", (e) => {
+    // Only handle keyboard events when carousel is in viewport
+    const rect = carouselContainer.getBoundingClientRect()
+    const isInViewport = rect.top < window.innerHeight && rect.bottom > 0
+
+    if (!isInViewport) return
+
     if (e.key === "ArrowLeft") {
       prevSlide()
       pauseAutoPlay()
@@ -286,9 +345,6 @@ function initializeCarousel() {
       setTimeout(resumeAutoPlay, 10000)
     }
   })
-
-  // Initialize first slide
-  showSlide(0)
 
   // Start auto-play
   startAutoPlay()
@@ -364,35 +420,70 @@ function initializeScrollAnimations() {
 function initializeGalleryFilter() {
   const filterBtns = document.querySelectorAll(".filter-btn")
   const galleryItems = document.querySelectorAll(".gallery-item")
+  const footerFilterLinks = document.querySelectorAll(".footer-links a[data-filter]")
 
   if (!filterBtns.length || !galleryItems.length) return
+
+  function filterGallery(filter) {
+    // Update active button
+    filterBtns.forEach((b) => {
+      b.classList.remove("active")
+      if (b.getAttribute("data-filter") === filter) {
+        b.classList.add("active")
+      }
+    })
+
+    // Filter gallery items with animation
+    galleryItems.forEach((item, index) => {
+      const category = item.getAttribute("data-category")
+
+      if (filter === "all" || category === filter) {
+        item.classList.remove("hidden")
+        setTimeout(() => {
+          item.style.opacity = "1"
+          item.style.transform = "scale(1)"
+        }, index * 50)
+      } else {
+        item.style.opacity = "0"
+        item.style.transform = "scale(0.8)"
+        setTimeout(() => {
+          item.classList.add("hidden")
+        }, 300)
+      }
+    })
+  }
 
   filterBtns.forEach((btn) => {
     btn.addEventListener("click", function () {
       const filter = this.getAttribute("data-filter")
+      filterGallery(filter)
+    })
+  })
 
-      // Update active button
-      filterBtns.forEach((b) => b.classList.remove("active"))
-      this.classList.add("active")
+  // Handle footer filter links
+  footerFilterLinks.forEach((link) => {
+    link.addEventListener("click", function (e) {
+      const filter = this.getAttribute("data-filter")
+      if (filter) {
+        e.preventDefault()
 
-      // Filter gallery items with animation
-      galleryItems.forEach((item, index) => {
-        const category = item.getAttribute("data-category")
+        // Scroll to gallery section
+        const gallerySection = document.getElementById("galeri")
+        if (gallerySection) {
+          const headerHeight = document.querySelector(".header").offsetHeight
+          const galleryPosition = gallerySection.offsetTop - headerHeight - 20
 
-        if (filter === "all" || category === filter) {
-          item.classList.remove("hidden")
+          window.scrollTo({
+            top: galleryPosition,
+            behavior: "smooth",
+          })
+
+          // Apply filter after scrolling
           setTimeout(() => {
-            item.style.opacity = "1"
-            item.style.transform = "scale(1)"
-          }, index * 50)
-        } else {
-          item.style.opacity = "0"
-          item.style.transform = "scale(0.8)"
-          setTimeout(() => {
-            item.classList.add("hidden")
-          }, 300)
+            filterGallery(filter)
+          }, 800)
         }
-      })
+      }
     })
   })
 }
@@ -498,6 +589,11 @@ function initializeAccessibility() {
   const navMenu = document.querySelector(".nav-menu")
 
   if (hamburger && navMenu) {
+    // Set initial ARIA attributes
+    hamburger.setAttribute("aria-expanded", "false")
+    hamburger.setAttribute("aria-controls", "nav-menu")
+    navMenu.id = "nav-menu"
+
     hamburger.addEventListener("click", () => {
       if (navMenu.classList.contains("active")) {
         // Focus first menu item when menu opens
@@ -516,6 +612,7 @@ function initializeAccessibility() {
         hamburger.classList.remove("active")
         navMenu.classList.remove("active")
         document.body.style.overflow = ""
+        hamburger.setAttribute("aria-expanded", "false")
         hamburger.focus()
       }
     }
@@ -526,28 +623,82 @@ function initializeAccessibility() {
   skipLink.href = "#neden-ozece"
   skipLink.textContent = "Ana içeriğe geç"
   skipLink.className = "skip-link"
-  skipLink.style.cssText = `
-        position: absolute;
-        top: -40px;
-        left: 6px;
-        background: #4CAF50;
-        color: white;
-        padding: 8px;
-        text-decoration: none;
-        border-radius: 4px;
-        z-index: 10000;
-        transition: top 0.3s;
-    `
-
-  skipLink.addEventListener("focus", function () {
-    this.style.top = "6px"
-  })
-
-  skipLink.addEventListener("blur", function () {
-    this.style.top = "-40px"
-  })
 
   document.body.insertBefore(skipLink, document.body.firstChild)
+}
+
+// Mobile Optimizations
+function initializeMobileOptimizations() {
+  // Fix for iOS 100vh issue
+  function setMobileHeight() {
+    // First we get the viewport height and multiply it by 1% to get a value for a vh unit
+    const vh = window.innerHeight * 0.01
+    // Then we set the value in the --vh custom property to the root of the document
+    document.documentElement.style.setProperty("--vh", `${vh}px`)
+
+    // Apply the height to carousel and other full-height elements
+    const carousel = document.querySelector(".hero-carousel")
+    if (carousel) {
+      carousel.style.height = `calc(var(--vh, 1vh) * 100 - 70px)`
+    }
+  }
+
+  // Set it initially
+  setMobileHeight()
+
+  // Reset on resize and orientation change
+  window.addEventListener("resize", debounce(setMobileHeight, 250))
+  window.addEventListener("orientationchange", () => {
+    setTimeout(setMobileHeight, 100)
+  })
+
+  // Improve touch targets for mobile
+  const smallButtons = document.querySelectorAll(".indicator, .social-link")
+  smallButtons.forEach((btn) => {
+    btn.addEventListener(
+      "touchstart",
+      function (e) {
+        // Slightly enlarge touch target on touch
+        this.style.transform = "scale(1.2)"
+      },
+      { passive: true },
+    )
+
+    btn.addEventListener(
+      "touchend",
+      function () {
+        // Reset after touch
+        setTimeout(() => {
+          this.style.transform = ""
+        }, 300)
+      },
+      { passive: true },
+    )
+  })
+
+  // Fix for iOS input zoom
+  const metaViewport = document.querySelector("meta[name=viewport]")
+  if (metaViewport && /iPhone|iPad|iPod/.test(navigator.userAgent)) {
+    metaViewport.content = "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
+  }
+
+  // Optimize images for mobile
+  const images = document.querySelectorAll("img")
+  if ("connection" in navigator) {
+    if (
+      navigator.connection.saveData ||
+      (navigator.connection.effectiveType && navigator.connection.effectiveType.includes("2g"))
+    ) {
+      // If in save data mode or on slow connection, load lower quality images
+      images.forEach((img) => {
+        if (img.src && !img.dataset.src) {
+          // Add a low-quality parameter to image URLs
+          // This is just an example - you would need a real implementation
+          // img.src = img.src.replace(/\.(jpg|png)/, '-low.$1');
+        }
+      })
+    }
+  }
 }
 
 // Notification System
@@ -575,31 +726,31 @@ function showNotification(message, type = "info") {
   }
 
   notification.innerHTML = `
-        <div class="notification-content">
-            <i class="${iconMap[type]}" style="margin-right: 10px;"></i>
-            <span class="notification-message">${message}</span>
-            <button class="notification-close" aria-label="Bildirimi kapat">&times;</button>
-        </div>
-    `
+    <div class="notification-content">
+      <i class="${iconMap[type]}" style="margin-right: 10px;"></i>
+      <span class="notification-message">${message}</span>
+      <button class="notification-close" aria-label="Bildirimi kapat">&times;</button>
+    </div>
+  `
 
   // Add styles
   notification.style.cssText = `
-        position: fixed;
-        top: 100px;
-        right: 20px;
-        background-color: ${colorMap[type]};
-        color: white;
-        padding: 1rem 1.5rem;
-        border-radius: 10px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        z-index: 10000;
-        transform: translateX(100%);
-        transition: transform 0.3s ease;
-        max-width: 400px;
-        word-wrap: break-word;
-        display: flex;
-        align-items: center;
-    `
+    position: fixed;
+    top: 100px;
+    right: 20px;
+    background-color: ${colorMap[type]};
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    z-index: 10000;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    max-width: 400px;
+    word-wrap: break-word;
+    display: flex;
+    align-items: center;
+  `
 
   // Add to DOM
   document.body.appendChild(notification)
@@ -612,15 +763,15 @@ function showNotification(message, type = "info") {
   // Close button functionality
   const closeBtn = notification.querySelector(".notification-close")
   closeBtn.style.cssText = `
-        background: none;
-        border: none;
-        color: white;
-        font-size: 1.5rem;
-        cursor: pointer;
-        margin-left: 10px;
-        padding: 0;
-        line-height: 1;
-    `
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    margin-left: 10px;
+    padding: 0;
+    line-height: 1;
+  `
 
   closeBtn.addEventListener("click", () => {
     notification.style.transform = "translateX(100%)"
@@ -653,7 +804,7 @@ function throttle(func, limit) {
   let inThrottle
   return function () {
     const args = arguments
-    
+
     if (!inThrottle) {
       func.apply(this, args)
       inThrottle = true
@@ -670,7 +821,14 @@ const debouncedResize = debounce(() => {
     // Recalculate carousel dimensions if needed
     const slides = carousel.querySelectorAll(".carousel-slide")
     slides.forEach((slide) => {
-      slide.style.height = window.innerHeight - 80 + "px"
+      // Use viewport units instead of fixed height
+      if (window.innerWidth <= 768) {
+        // Mobile view - full height minus header
+        slide.style.height = "calc(100vh - 70px)"
+      } else {
+        // Desktop view - fixed height or percentage
+        slide.style.height = ""
+      }
     })
   }
 
@@ -693,6 +851,8 @@ function preloadImages() {
   criticalImages.forEach((src) => {
     const img = new Image()
     img.src = src
+    // Add crossOrigin for CORS issues
+    img.crossOrigin = "anonymous"
   })
 }
 
