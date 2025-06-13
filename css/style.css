@@ -3,11 +3,13 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
 }
 
 html {
   scroll-behavior: smooth;
   font-size: 16px;
+  height: 100%;
 }
 
 body {
@@ -16,12 +18,16 @@ body {
   color: #5d4037;
   background-color: #f5f1eb;
   overflow-x: hidden;
+  min-height: 100%;
+  position: relative;
+  width: 100%;
 }
 
 .container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
+  width: 100%;
 }
 
 /* Loading Screen */
@@ -70,13 +76,14 @@ body {
   width: 100%;
   background-color: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px); /* Safari support */
   box-shadow: 0 2px 20px rgba(93, 64, 55, 0.1);
   z-index: 1000;
   transition: all 0.3s ease;
 }
 
 .navbar {
-  padding: 1rem 0;
+  padding: 0.8rem 0;
 }
 
 .nav-container {
@@ -95,7 +102,7 @@ body {
 }
 
 .logo-img {
-  height: 50px;
+  height: 40px;
   width: auto;
   transition: transform 0.3s ease;
 }
@@ -105,7 +112,7 @@ body {
 }
 
 .logo-text {
-  font-size: 1.8rem;
+  font-size: 1.5rem;
   font-weight: bold;
   color: #5d4037;
   transition: color 0.3s ease;
@@ -152,9 +159,9 @@ body {
 .contact-btn {
   background-color: #4caf50 !important;
   color: white !important;
-  padding: 12px 24px !important;
+  padding: 10px 20px !important;
   font-weight: bold;
-  font-size: 1.1rem;
+  font-size: 1rem;
   box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
   border: none;
   display: flex;
@@ -178,6 +185,7 @@ body {
   flex-direction: column;
   cursor: pointer;
   padding: 5px;
+  z-index: 1001;
 }
 
 .bar {
@@ -205,8 +213,10 @@ body {
 .hero-carousel {
   position: relative;
   height: 100vh;
+  max-height: 800px;
+  min-height: 500px;
   overflow: hidden;
-  margin-top: 80px;
+  margin-top: 70px;
 }
 
 .carousel-container {
@@ -255,7 +265,7 @@ body {
 }
 
 .slide-title {
-  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-size: clamp(1.8rem, 5vw, 3.5rem);
   color: #5d4037;
   margin-bottom: 1.5rem;
   font-weight: bold;
@@ -276,10 +286,10 @@ body {
 }
 
 .btn {
-  padding: 15px 30px;
+  padding: 12px 24px;
   border: none;
   border-radius: 25px;
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: bold;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -287,6 +297,7 @@ body {
   display: inline-block;
   position: relative;
   overflow: hidden;
+  -webkit-appearance: none; /* Fix for iOS */
 }
 
 .btn::before {
@@ -300,7 +311,8 @@ body {
   transition: left 0.5s;
 }
 
-.btn:hover::before {
+.btn:hover::before,
+.btn:active::before {
   left: 100%;
 }
 
@@ -310,7 +322,8 @@ body {
   box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
 }
 
-.btn-primary:hover {
+.btn-primary:hover,
+.btn-primary:active {
   background-color: #45a049;
   transform: translateY(-3px);
   box-shadow: 0 6px 25px rgba(76, 175, 80, 0.4);
@@ -322,7 +335,8 @@ body {
   border: 2px solid #5d4037;
 }
 
-.btn-secondary:hover {
+.btn-secondary:hover,
+.btn-secondary:active {
   background-color: #5d4037;
   color: white;
   transform: translateY(-3px);
@@ -390,6 +404,7 @@ body {
   padding: 0 20px;
   transform: translateY(-50%);
   pointer-events: none;
+  z-index: 10;
 }
 
 .carousel-btn {
@@ -407,9 +422,11 @@ body {
   transition: all 0.3s ease;
   box-shadow: 0 4px 15px rgba(93, 64, 55, 0.2);
   pointer-events: all;
+  -webkit-appearance: none; /* Fix for iOS */
 }
 
-.carousel-btn:hover {
+.carousel-btn:hover,
+.carousel-btn:active {
   background-color: #4caf50;
   color: white;
   transform: scale(1.1);
@@ -423,6 +440,7 @@ body {
   transform: translateX(-50%);
   display: flex;
   gap: 10px;
+  z-index: 10;
 }
 
 .indicator {
@@ -433,6 +451,7 @@ body {
   border: none;
   cursor: pointer;
   transition: all 0.3s ease;
+  -webkit-appearance: none; /* Fix for iOS */
 }
 
 .indicator.active {
@@ -447,7 +466,7 @@ body {
 }
 
 .section-title {
-  font-size: clamp(2rem, 4vw, 2.5rem);
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
   color: #5d4037;
   margin-bottom: 1rem;
   position: relative;
@@ -473,19 +492,19 @@ body {
 
 /* Features Section */
 .features-section {
-  padding: 80px 0;
+  padding: 60px 0;
   background-color: white;
 }
 
 .features-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 2rem;
 }
 
 .feature-card {
   background-color: #f5f1eb;
-  padding: 2.5rem;
+  padding: 2rem;
   border-radius: 15px;
   text-align: center;
   transition: all 0.3s ease;
@@ -493,6 +512,7 @@ body {
   overflow: hidden;
   opacity: 0;
   transform: translateX(-50px);
+  height: 100%;
 }
 
 .feature-card.animate-from-left {
@@ -529,7 +549,7 @@ body {
 }
 
 .feature-icon {
-  font-size: 3.5rem;
+  font-size: 3rem;
   color: #4caf50;
   margin-bottom: 1.5rem;
   transition: transform 0.3s ease;
@@ -542,7 +562,7 @@ body {
 .feature-title {
   color: #5d4037;
   margin-bottom: 1rem;
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   font-weight: bold;
 }
 
@@ -587,7 +607,7 @@ body {
 
 /* About Section */
 .about-section {
-  padding: 80px 0;
+  padding: 60px 0;
   background-color: #f5f1eb;
 }
 
@@ -600,7 +620,7 @@ body {
 
 .about-title {
   color: #5d4037;
-  font-size: clamp(2rem, 4vw, 2.5rem);
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
   margin-bottom: 1.5rem;
   font-weight: bold;
 }
@@ -622,7 +642,7 @@ body {
 .stat-item {
   text-align: center;
   flex: 1;
-  min-width: 120px;
+  min-width: 100px;
 }
 
 .stat-number {
@@ -673,7 +693,7 @@ body {
 
 /* Gallery Section */
 .gallery-section {
-  padding: 80px 0;
+  padding: 60px 0;
   background-color: white;
 }
 
@@ -694,9 +714,11 @@ body {
   cursor: pointer;
   transition: all 0.3s ease;
   font-weight: 500;
+  -webkit-appearance: none; /* Fix for iOS */
 }
 
 .filter-btn:hover,
+.filter-btn:active,
 .filter-btn.active {
   background-color: #4caf50;
   border-color: #4caf50;
@@ -706,7 +728,7 @@ body {
 
 .gallery-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 2rem;
 }
 
@@ -722,7 +744,7 @@ body {
 
 .gallery-card {
   background-color: #f5f1eb;
-  padding: 2.5rem;
+  padding: 2rem;
   border-radius: 15px;
   text-align: center;
   transition: all 0.3s ease;
@@ -754,7 +776,7 @@ body {
 }
 
 .card-icon {
-  font-size: 4rem;
+  font-size: 3.5rem;
   color: #4caf50;
   margin-bottom: 1.5rem;
   transition: transform 0.3s ease;
@@ -766,7 +788,7 @@ body {
 
 .card-title {
   color: #5d4037;
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   font-weight: bold;
   margin-bottom: 1rem;
 }
@@ -796,21 +818,21 @@ body {
 
 /* Contact Section with Google Maps */
 .contact-section {
-  padding: 80px 0;
+  padding: 60px 0;
   background-color: #f5f1eb;
 }
 
 .contact-content {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 4rem;
+  gap: 3rem;
 }
 
 .contact-item {
   display: flex;
   align-items: center;
   gap: 1.5rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
   padding: 1.5rem;
   background-color: white;
   border-radius: 10px;
@@ -822,15 +844,15 @@ body {
 }
 
 .contact-icon {
-  width: 60px;
-  height: 60px;
+  width: 50px;
+  height: 50px;
   background-color: #4caf50;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   flex-shrink: 0;
 }
 
@@ -889,7 +911,8 @@ body {
   box-shadow: 0 5px 20px rgba(37, 211, 102, 0.3);
 }
 
-.whatsapp-btn:hover {
+.whatsapp-btn:hover,
+.whatsapp-btn:active {
   transform: translateY(-5px);
   box-shadow: 0 8px 25px rgba(37, 211, 102, 0.4);
 }
@@ -907,7 +930,7 @@ body {
 
 .footer-content {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 2rem;
   margin-bottom: 2rem;
 }
@@ -953,7 +976,8 @@ body {
   transition: all 0.3s ease;
 }
 
-.social-link:hover {
+.social-link:hover,
+.social-link:active {
   background-color: #45a049;
   transform: translateY(-3px);
 }
@@ -978,7 +1002,8 @@ body {
   transition: color 0.3s ease;
 }
 
-.footer-links a:hover {
+.footer-links a:hover,
+.footer-links a:active {
   color: #4caf50;
 }
 
@@ -996,7 +1021,8 @@ body {
   transition: color 0.3s ease;
 }
 
-.footer-contact a:hover {
+.footer-contact a:hover,
+.footer-contact a:active {
   color: #4caf50;
 }
 
@@ -1029,6 +1055,7 @@ body {
   opacity: 0;
   visibility: hidden;
   z-index: 1000;
+  -webkit-appearance: none; /* Fix for iOS */
 }
 
 .back-to-top.visible {
@@ -1036,7 +1063,8 @@ body {
   visibility: visible;
 }
 
-.back-to-top:hover {
+.back-to-top:hover,
+.back-to-top:active {
   background-color: #45a049;
   transform: translateY(-3px);
 }
@@ -1086,11 +1114,15 @@ body {
 /* Responsive Design */
 @media (max-width: 1024px) {
   .features-grid {
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   }
 
   .gallery-grid {
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+
+  .hero-carousel {
+    height: 80vh;
   }
 }
 
@@ -1102,7 +1134,7 @@ body {
   .nav-menu {
     position: fixed;
     left: -100%;
-    top: 80px;
+    top: 70px;
     flex-direction: column;
     background-color: white;
     width: 100%;
@@ -1110,8 +1142,9 @@ body {
     transition: 0.3s;
     box-shadow: 0 10px 27px rgba(0, 0, 0, 0.05);
     padding: 2rem 0;
-    height: calc(100vh - 80px);
+    height: calc(100vh - 70px);
     overflow-y: auto;
+    z-index: 1000;
   }
 
   .nav-menu.active {
@@ -1122,8 +1155,13 @@ body {
     margin: 1rem 0;
   }
 
+  .nav-link {
+    display: inline-block;
+    padding: 12px 24px;
+  }
+
   .hero-carousel {
-    margin-top: 80px;
+    margin-top: 70px;
     height: auto;
     min-height: 100vh;
   }
@@ -1133,6 +1171,10 @@ body {
     text-align: center;
     gap: 2rem;
     padding: 2rem 20px;
+  }
+
+  .slide-buttons {
+    justify-content: center;
   }
 
   .features-grid {
@@ -1181,6 +1223,10 @@ body {
   .footer-contact p {
     justify-content: center;
   }
+
+  .map-container {
+    height: 300px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -1192,21 +1238,38 @@ body {
     padding: 0 15px;
   }
 
+  .logo-img {
+    height: 35px;
+  }
+
+  .logo-text {
+    font-size: 1.2rem;
+  }
+
   .slide-content {
     padding: 1.5rem 15px;
   }
 
-  .btn {
-    padding: 12px 20px;
+  .slide-title {
+    font-size: 1.8rem;
+  }
+
+  .slide-description {
     font-size: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .btn {
+    padding: 10px 20px;
+    font-size: 0.9rem;
   }
 
   .feature-card {
-    padding: 2rem 1.5rem;
+    padding: 1.5rem;
   }
 
   .gallery-card {
-    padding: 2rem 1.5rem;
+    padding: 1.5rem;
   }
 
   .about-stats {
@@ -1220,6 +1283,10 @@ body {
     text-align: center;
   }
 
+  .contact-icon {
+    margin-bottom: 0.5rem;
+  }
+
   .back-to-top {
     bottom: 20px;
     right: 20px;
@@ -1228,7 +1295,48 @@ body {
   }
 
   .map-container {
-    height: 300px;
+    height: 250px;
+  }
+
+  .whatsapp-btn {
+    padding: 12px 20px;
+    font-size: 1rem;
+  }
+
+  .whatsapp-btn i {
+    font-size: 1.3rem;
+  }
+
+  .carousel-indicators {
+    bottom: 15px;
+  }
+
+  .indicator {
+    width: 10px;
+    height: 10px;
+  }
+
+  .section-header {
+    margin-bottom: 2.5rem;
+  }
+
+  .features-section,
+  .about-section,
+  .gallery-section,
+  .contact-section {
+    padding: 40px 0;
+  }
+}
+
+/* Fix for iOS Safari 100vh issue */
+@supports (-webkit-touch-callout: none) {
+  .hero-carousel {
+    height: calc(100vh - 70px);
+  }
+
+  .nav-menu.active {
+    height: calc(100vh - 70px);
+    padding-bottom: 100px; /* Extra padding to ensure scrollability */
   }
 }
 
@@ -1320,4 +1428,22 @@ body {
     background-color: #000 !important;
     border: 2px solid #000;
   }
+}
+
+/* Skip link for keyboard users */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: #4caf50;
+  color: white;
+  padding: 8px;
+  text-decoration: none;
+  border-radius: 4px;
+  z-index: 10000;
+  transition: top 0.3s;
+}
+
+.skip-link:focus {
+  top: 6px;
 }
