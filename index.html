@@ -2,11 +2,13 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Özece Ambalaj - Çevre Dostu Karton Bardak Çözümleri</title>
     <meta name="description" content="Özece Ambalaj - Sürdürülebilir ve kaliteli karton bardak üretimi ile çevreye duyarlı ambalaj çözümleri">
     <link rel="stylesheet" href="css\style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Preload critical assets -->
+    <link rel="preload" href="img\ozececup_logo.jpg" as="image">
 </head>
 <body>
     <!-- Loading Screen -->
@@ -34,11 +36,13 @@
                         <a href="#galeri" class="nav-link">Galeri</a>
                     </li>
                     <li class="nav-item">
-                        <a href="https://wa.me/905550692517" target="_blank" class="nav-link contact-btn">Bize Ulaşın</a>
+                        <a href="https://wa.me/905550692517" target="_blank" class="nav-link contact-btn">
+                            <i class="fab fa-whatsapp"></i> Bize Ulaşın
+                        </a>
                     </li>
                 </ul>
                 
-                <div class="hamburger">
+                <div class="hamburger" aria-label="Menüyü aç" role="button" tabindex="0">
                     <span class="bar"></span>
                     <span class="bar"></span>
                     <span class="bar"></span>
@@ -50,7 +54,8 @@
     <!-- Hero Carousel Section -->
     <section class="hero-carousel">
         <div class="carousel-container">
-            <div class="carousel-slide active">
+            <!-- First slide is visible by default with inline styles -->
+            <div class="carousel-slide active" style="opacity: 1; transform: translateX(0);">
                 <div class="slide-content">
                     <div class="slide-text">
                         <h1 class="slide-title">Çevre Dostu Ambalaj Çözümleri</h1>
@@ -420,10 +425,10 @@
                 <div class="footer-section">
                     <h3 class="footer-title">Ürünlerimiz</h3>
                     <ul class="footer-links">
-                        <li><a href="#">Kahve Bardakları</a></li>
-                        <li><a href="#">Soğuk İçecek Bardakları</a></li>
-                        <li><a href="#">Gıda Ambalajları</a></li>
-                        <li><a href="#">Özel Tasarım</a></li>
+                        <li><a href="#galeri" data-filter="coffee">Kahve Bardakları</a></li>
+                        <li><a href="#galeri" data-filter="cold">Soğuk İçecek Bardakları</a></li>
+                        <li><a href="#galeri" data-filter="food">Gıda Ambalajları</a></li>
+                        <li><a href="#galeri">Özel Tasarım</a></li>
                     </ul>
                 </div>
                 
@@ -473,7 +478,8 @@
                         "elementType": "geometry",
                         "stylers": [{"color": "#8dab7f"}]
                     }
-                ]
+                ],
+                gestureHandling: "cooperative" // Improved mobile map handling
             });
             
             const marker = new google.maps.Marker({
