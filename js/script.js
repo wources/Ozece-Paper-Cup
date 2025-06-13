@@ -619,12 +619,12 @@ function initializeAccessibility() {
   })
 
   // Skip to main content link
-  const skipLink = document.createElement("a")
-  skipLink.href = "#neden-ozece"
-  skipLink.textContent = "Ana içeriğe geç"
-  skipLink.className = "skip-link"
+  //const skipLink = document.createElement("a")
+ // skipLink.href = "#neden-ozece"
+ // skipLink.textContent = "Ana içeriğe geç"
+ // skipLink.className = "skip-link"
 
-  document.body.insertBefore(skipLink, document.body.firstChild)
+ // document.body.insertBefore(skipLink, document.body.firstChild)
 }
 
 // Mobile Optimizations
