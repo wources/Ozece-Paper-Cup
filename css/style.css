@@ -588,7 +588,7 @@ body {
   border-radius: 20px;
   font-size: 0.8rem;
   font-weight: bold;
-  transform: rotate(10deg);
+  /*transform: rotate(10deg);*/
   box-shadow: 0 4px 10px rgba(233, 30, 99, 0.3);
   animation: pulse 2s infinite;
 }
